@@ -31,15 +31,19 @@ const postCreateShift = async (req, res) => {
             throw new error('FireStore has no been initialized initialized');
         }
         const { user_id, ...newShift } = req.body;
-        if(!user_id){
-            res.status(400).json({error: 'El id del usuario es requerido'});
+        if (!user_id) {
+            res.status(400).json({ error: 'El id del usuario es requerido' });
         }
         const autoGenerateId = uuidv4();
-        const formattedDate = new Date().toLocaleDateString();
+        const formattedDate = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        }).replace(/\//g, '_');
 
-        const newFormatReference = `${autoGenerateId}_${user_id}_${formattedDate}}`;
+        const newFormatReference = `${autoGenerateId}_${user_id}_D${formattedDate}`;
         const newShiftRef = await db.collection('companies').doc(companyId).collection('shift').doc(newFormatReference);
-        await newShiftRef.set({ id: newShift.id, ...newShift });
+        await newShiftRef.set({ id: newShiftRef.id, ...newShift });
 
         res.status(201).json({ id: newShiftRef.id, ...newShift })
     } catch (error) {
