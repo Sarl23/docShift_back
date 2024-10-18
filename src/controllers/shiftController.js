@@ -16,7 +16,13 @@ const getAllShift = async (req, res) => {
                 ...shift
             }
         }));
-        res.status(201).json(shiftData);
+        return res.status(201).send({
+            "success": true,
+            "response": {
+                "code": 201,
+                "data":shiftData
+            }
+        });
     } catch (error) {
         console.error('Error getting shift', error);
         res.status(500).send('Internal Server Error getting shift');
@@ -45,7 +51,13 @@ const postCreateShift = async (req, res) => {
         const newShiftRef = await db.collection('companies').doc(companyId).collection('shift').doc(newFormatReference);
         await newShiftRef.set({ id: newShiftRef.id, ...newShift });
 
-        res.status(201).json({ id: newShiftRef.id, ...newShift })
+        return res.status(201).send({
+            "success": true,
+            "response": {
+                "code": 201,
+                "data":{ id: newShiftRef.id, ...newShift }
+            }
+        });
     } catch (error) {
         console.error('Error creating shift', error);
         res.status(500).send('Internal server error creating shift')
@@ -69,7 +81,13 @@ const getShiftById = async (req, res) => {
                 }
             });
         }
-        res.status(201).json({ id: shiftDoc.id, ...shiftDoc.data() })
+        return res.status(201).send({
+            "success": true,
+            "response": {
+                "code": 201,
+                "data":{ id: shiftDoc.id, ...shiftDoc.data() }
+            }
+        });
     } catch (error) {
         console.log('Error fetching shiftTye');
         res.status(500).send('Internal server error');
@@ -115,7 +133,13 @@ const updateShiftById = async (req, res) => {
         }
         const shiftData = req.body;
         const shiftRef = await db.collection('companies').doc(companyId).collection('shift').doc(shiftId).update(shiftData);
-        res.status(201).json({ id: shiftRef.id, ...shiftData });
+        return res.status(201).send({
+            "success": true,
+            "response": {
+                "code": 201,
+                "data":{ id: shiftRef.id, ...shiftData }
+            }
+        });
     } catch (error) {
         console.error('Error updating shift');
         res.status(500).send('Internal server error');
@@ -130,7 +154,13 @@ const deleteShift = async (req, res) => {
             throw new Error('FireStore has no been initialized');
         }
         await db.collection('companies').doc(companyId).collection('shift').doc(shiftId).delete();
-        res.status(204).send('Successfully deleted');
+        return res.status(201).send({
+            "success": true,
+            "response": {
+                "code": 201,
+                "message":'Successfully deleted'
+            }
+        });
     } catch {
         console.error('Error deleting shift');
         res.status(500).send('Internal server error deleting shift');
