@@ -20,7 +20,7 @@ const getAllShift = async (req, res) => {
             "success": true,
             "response": {
                 "code": 201,
-                "data":shiftData
+                "data": shiftData
             }
         });
     } catch (error) {
@@ -55,7 +55,7 @@ const postCreateShift = async (req, res) => {
             "success": true,
             "response": {
                 "code": 201,
-                "data":{ id: newShiftRef.id, ...newShift }
+                "data": { id: newShiftRef.id, ...newShift }
             }
         });
     } catch (error) {
@@ -85,7 +85,7 @@ const getShiftById = async (req, res) => {
             "success": true,
             "response": {
                 "code": 201,
-                "data":{ id: shiftDoc.id, ...shiftDoc.data() }
+                "data": { id: shiftDoc.id, ...shiftDoc.data() }
             }
         });
     } catch (error) {
@@ -104,12 +104,25 @@ const getShiftByUserId = async (req, res) => {
         }
         const querySnapshot = await db.collection('companies').doc(companyId).collection('shift').get();
         let arrayShiftDataByUser = []
-        querySnapshot.docs.map(doc => {
-            const  user_Id = doc.id?.split('_')[1];
+        for (const doc of querySnapshot.docs) {
+            const user_Id = doc.id?.split('_')[1];
             if (user_Id === userId) {
-                arrayShiftDataByUser.push({ id: doc?.id, ...doc.data() });
+                const { shift_type_id, ...shiftData } = doc.data();
+                let shiftTypeDoc = {};
+                if (shift_type_id) {
+                    const shiftTypeSnap = await db.collection('companies').doc(companyId).collection('shift_types').doc(shift_type_id).get();
+                    shiftTypeDoc = shiftTypeSnap.exists ? shiftTypeSnap.data() : {};
+                }
+                arrayShiftDataByUser.push({
+                    id: doc?.id,
+                    descriptionShift: shiftTypeDoc?.description ?? '',
+                    nameShift: shiftTypeDoc?.name ?? '',
+                    start_timeShift: shiftTypeDoc?.start_time ?? '',
+                    end_timeShift: shiftTypeDoc?.end_time ?? '',
+                    ...shiftData
+                });
             }
-        });
+        };
         return res.status(201).send({
             "success": true,
             "data": {
@@ -137,7 +150,7 @@ const updateShiftById = async (req, res) => {
             "success": true,
             "response": {
                 "code": 201,
-                "data":{ id: shiftRef.id, ...shiftData }
+                "data": { id: shiftRef.id, ...shiftData }
             }
         });
     } catch (error) {
@@ -158,7 +171,7 @@ const deleteShift = async (req, res) => {
             "success": true,
             "response": {
                 "code": 201,
-                "message":'Successfully deleted'
+                "message": 'Successfully deleted'
             }
         });
     } catch {
