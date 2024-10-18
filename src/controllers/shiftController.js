@@ -87,13 +87,18 @@ const getShiftByUserId = async (req, res) => {
         const querySnapshot = await db.collection('companies').doc(companyId).collection('shift').get();
         let arrayShiftDataByUser = []
         querySnapshot.docs.map(doc => {
-            const [shortShiftId, user_Id, dateShift] = doc.id?.split('_');
-            console.log({ shortShiftId, user_Id, dateShift });
+            const  user_Id = doc.id?.split('_')[1];
             if (user_Id === userId) {
                 arrayShiftDataByUser.push({ id: doc?.id, ...doc.data() });
             }
         });
-        res.status(201).json(arrayShiftDataByUser);
+        return res.status(201).send({
+            "success": true,
+            "data": {
+                "code": 201,
+                shiftByUser: arrayShiftDataByUser
+            }
+        });
     } catch (error) {
         console.error('Error fetching shift by user id', error);
         res.status(500).send('Internal server error');
