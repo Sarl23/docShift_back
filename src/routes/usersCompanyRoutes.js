@@ -5,7 +5,8 @@ const {
     postCreateUser,
     putUpdateUser,
     deleteUser,
-} = require('../controllers/userController.js');
+    postCreateUserWithRandomId
+} = require('../controllers/usersCompanyController.js');
 
 const router = Router();
 
@@ -75,6 +76,7 @@ router.get('/company/:companyId/users/:userId', getUserById);
  *         description: Some server error
  */
 router.post('/company/:companyId/users', postCreateUser);
+router.post('/company/:companyId/users/random', postCreateUserWithRandomId);
 
 /**
  * @swagger
