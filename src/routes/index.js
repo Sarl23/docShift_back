@@ -1,17 +1,17 @@
 const express = require('express');
-const userRoutes = require('./userRoutes');
+const userRoutes = require('./usersCompanyRoutes');
 const companyRoutes = require('./companyRoutes');
-const userTypeRoutes = require('./userTypeRoutes');
 const shiftTypeRoutes = require('./shiftTypeRoutes');
 const shiftRoutes =  require('./shiftRoutes');
+const globalUsersRoutes = require('./globalUsersRoutes');
 
 const router = express.Router();
 
-router.use(userRoutes);
 router.use(companyRoutes);
-router.use(userTypeRoutes);
+router.use(userRoutes);
 router.use(shiftTypeRoutes);
 router.use(shiftRoutes);
+router.use(globalUsersRoutes);
 
 
 module.exports = router;
