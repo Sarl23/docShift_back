@@ -18,14 +18,14 @@ const getAllShift = async (req, res) => {
         }));
         return res.status(201).send({
             "success": true,
-            "response": {
-                "code": 201,
-                "data": shiftData
-            }
+            "data":shiftData
         });
     } catch (error) {
         console.error('Error getting shift', error);
-        res.status(500).send('Internal Server Error getting shift');
+        return res.status(500).json({
+            success: false,
+            errorCode: 'INTERNAL_SERVER_ERROR_GETTING_SHIFT',
+        });
     }
 };
 
@@ -38,7 +38,10 @@ const postCreateShift = async (req, res) => {
         }
         const { user_id, ...newShift } = req.body;
         if (!user_id) {
-            res.status(400).json({ error: 'El id del usuario es requerido' });
+            return res.status(404).send({
+                success: false,
+                errorCode: "INVALID_USER_ID",
+            });
         }
         const autoGenerateId = uuidv4();
         const formattedDate = new Date().toLocaleDateString('en-US', {
@@ -51,16 +54,17 @@ const postCreateShift = async (req, res) => {
         const newShiftRef = await db.collection('companies').doc(companyId).collection('shift').doc(newFormatReference);
         await newShiftRef.set({ id: newShiftRef.id, ...newShift });
 
-        return res.status(201).send({
-            "success": true,
-            "response": {
-                "code": 201,
-                "data": { id: newShiftRef.id, ...newShift }
-            }
+        return res.status(200).send({
+            success: true,
+            data: { id: newShiftRef.id, ...newShift }
+            
         });
     } catch (error) {
         console.error('Error creating shift', error);
-        res.status(500).send('Internal server error creating shift')
+        return res.status(500).json({
+            success: false,
+            errorCode: 'INTERNAL_SERVER_ERROR_CREATING_SHIFT',
+        });
     }
 };
 
@@ -74,23 +78,21 @@ const getShiftById = async (req, res) => {
         const shiftDoc = await db.collection('companies').doc(companyId).collection('shift').doc(shiftId).get();
         if (!shiftDoc.exists) {
             return res.status(400).send({
-                "success": true,
-                "error": {
-                    "code": 400,
-                    "message": "Por el momento el turno que buscas no se encuentra",
-                }
+                success: false,
+                errorCode:"INVALID_SHIFT_ID",
             });
         }
         return res.status(201).send({
-            "success": true,
-            "response": {
-                "code": 201,
-                "data": { id: shiftDoc.id, ...shiftDoc.data() }
-            }
+            success: true,
+            data: { id: shiftDoc.id, ...shiftDoc.data() }
+            
         });
     } catch (error) {
         console.log('Error fetching shiftTye');
-        res.status(500).send('Internal server error');
+        return res.status(500).json({
+            success: false,
+            errorCode: 'INTERNAL_SERVER_ERROR_GET_SHIFT_BY_ID',
+        });
     }
 };
 
@@ -124,15 +126,17 @@ const getShiftByUserId = async (req, res) => {
             }
         };
         return res.status(201).send({
-            "success": true,
-            "data": {
-                "code": 201,
+            success: true,
+            data: {
                 shiftByUser: arrayShiftDataByUser
             }
         });
     } catch (error) {
         console.error('Error fetching shift by user id', error);
-        res.status(500).send('Internal server error');
+        return res.status(500).json({
+            success: false,
+            errorCode: 'INTERNAL_SERVER_ERROR_GET_SHIFT_BY_USER_ID',
+        });
     }
 
 }
@@ -147,15 +151,17 @@ const updateShiftById = async (req, res) => {
         const shiftData = req.body;
         const shiftRef = await db.collection('companies').doc(companyId).collection('shift').doc(shiftId).update(shiftData);
         return res.status(201).send({
-            "success": true,
-            "response": {
-                "code": 201,
-                "data": { id: shiftRef.id, ...shiftData }
+            success: true,
+            response: {
+                data: { id: shiftRef.id, ...shiftData }
             }
         });
     } catch (error) {
         console.error('Error updating shift');
-        res.status(500).send('Internal server error');
+        return res.status(500).json({
+            success: false,
+            errorCode: 'INTERNAL_SERVER_ERROR_UPDATING_SHIFT',
+        });
     }
 };
 
@@ -168,17 +174,18 @@ const deleteShift = async (req, res) => {
         }
         await db.collection('companies').doc(companyId).collection('shift').doc(shiftId).delete();
         return res.status(201).send({
-            "success": true,
-            "response": {
-                "code": 201,
-                "message": 'Successfully deleted'
-            }
+            success: true,
+            data : 'Successfully deleted'
         });
     } catch {
         console.error('Error deleting shift');
-        res.status(500).send('Internal server error deleting shift');
+        return res.status(500).json({
+            success: false,
+            errorCode: 'INTERNAL_SERVER_ERROR_DELETING_SHIFT',
+        });
     }
 }
+
 
 module.exports = {
     getAllShift,
