@@ -58,6 +58,16 @@ const createGlobalUserWithValidation = async (req, res) => {
 
         return res.status(201).json({
             success: true,
+            data: { 
+                user: {userId: newUserId, ...userData },
+                company :{  
+                    companyId: companyDoc.id, 
+                    address: companyDoc.address, 
+                    city: companyDoc.city, 
+                    code: companyDoc.code, 
+                    name: companyDoc.name
+                }
+            },
             message: 'Usuario creado en users exitosamente',
         });
 
