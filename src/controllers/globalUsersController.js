@@ -28,6 +28,7 @@ const createGlobalUserWithValidation = async (req, res) => {
         }
 
         const companyDoc = companyQuery.docs[0];
+        const {address, city, companyCode, name} = companyDoc.data();
         const companyId = companyDoc.id;
         const usersQuery = await db.collection('companies')
             .doc(companyId)
@@ -62,10 +63,10 @@ const createGlobalUserWithValidation = async (req, res) => {
                 user: {userId: newUserId, ...userData },
                 company :{  
                     companyId: companyDoc.id, 
-                    address: companyDoc.address, 
-                    city: companyDoc.city, 
-                    code: companyDoc.code, 
-                    name: companyDoc.name
+                    address, 
+                    city, 
+                    companyCode, 
+                    name,
                 }
             },
             message: 'Usuario creado en users exitosamente',
