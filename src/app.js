@@ -1,10 +1,18 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
 const routes = require('../src/routes/index.js');
 const {swaggerUi, specs } = require('./swagger');
 const path = require('path');
 
 const app = express();
+
+app.use(cors({
+    origin: process.env.NODE_ENV === 'production'
+        ? 'https://tu-dominio-productivo.com'
+        : 'http://localhost:5173',
+    credentials: true,
+}));
 
 app.use(morgan('dev'));
 app.use(express.json());
