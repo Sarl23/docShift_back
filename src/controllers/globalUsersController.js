@@ -152,7 +152,7 @@ const getGlobalUserById = async (req, res) => {
                 }
             })
         );
-        return res.status(200).json({ success: true, data: { id: doc.id, ...doc.data(), companiesData } });
+        return res.status(200).json({ success: true, data: { userId: doc.id, ...doc.data(), companiesData } });
     } catch (error) {
         console.error('Error al obtener usuario por ID:', error);
         return res.status(500).json({ success: false, errorCode: 'INTERNAL_SERVER_ERROR_GET_USER_BY_ID' });
