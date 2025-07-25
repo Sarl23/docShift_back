@@ -16,7 +16,7 @@ async function initializeFirebase() {
         const serviceAccount = JSON.parse(fs.readFileSync(path.resolve(serviceAccountPath), 'utf8'));
         if(!serviceAccount){
             console.log('Downloading credentials from URL...');
-            const response = await axios.get(serviceAccountUrl);
+            const response = await axios.get(serviceAccountPath);
             const serviceAccount = response.data;
             initializeApp({
                 credential: cert(serviceAccount),
