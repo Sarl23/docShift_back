@@ -14,10 +14,20 @@ async function initializeFirebase() {
 
         console.log('Reading credentials...');
         const serviceAccount = JSON.parse(fs.readFileSync(path.resolve(serviceAccountPath), 'utf8'));
-
-        initializeApp({
-            credential: cert(serviceAccount)
+        if(!serviceAccount){
+            console.log('Downloading credentials from URL...');
+            const response = await axios.get(serviceAccountUrl);
+            const serviceAccount = response.data;
+            initializeApp({
+                credential: cert(serviceAccount),
+            });
+            db = getFirestore();
+            console.log('Firebase initialized successfully...');
+        }else{
+            initializeApp({
+                credential: cert(serviceAccount)
         });
+    }
 
         db = getFirestore();
         console.log('Firebase initialized successfully...');
