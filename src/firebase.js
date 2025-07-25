@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const axios = require('axios');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 
@@ -12,22 +13,20 @@ async function initializeFirebase() {
             throw new Error('The GOOGLE_APPLICATION_CREDENTIALS environment variable is not set');
         }
 
-        console.log('Reading credentials...');
-        const serviceAccount = JSON.parse(fs.readFileSync(path.resolve(serviceAccountPath), 'utf8'));
-        if(!serviceAccount){
+        let serviceAccount;
+        if (serviceAccountPath.startsWith('http')) {
             console.log('Downloading credentials from URL...');
             const response = await axios.get(serviceAccountPath);
-            const serviceAccount = response.data;
-            initializeApp({
-                credential: cert(serviceAccount),
-            });
-            db = getFirestore();
-            console.log('Firebase initialized successfully...');
-        }else{
-            initializeApp({
-                credential: cert(serviceAccount)
+            serviceAccount = response.data;
+        } else {
+            console.log('Reading credentials from local file...');
+            const filePath = path.resolve(serviceAccountPath);
+            serviceAccount = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        }
+
+        initializeApp({
+            credential: cert(serviceAccount),
         });
-    }
 
         db = getFirestore();
         console.log('Firebase initialized successfully...');
