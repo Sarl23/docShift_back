@@ -11,7 +11,7 @@ const {
 const router = Router();
 
 router.get('/globalUsers', getAllGlobalUsers);
-router.get('/globalUsers/:id', getGlobalUserById);
+router.get('/globalUserWithId/:id', getGlobalUserById);
 router.post('/globalUsers', postCreateGlobalUser);
 router.post('/globalUsersWithValidation', createGlobalUserWithValidation);
 router.put('/globalUsers/:id', putUpdateGlobalUser);

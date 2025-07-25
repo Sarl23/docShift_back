@@ -11,6 +11,9 @@ yarn-error.log*
 # Firebase credentials
 config/firebase.json
 src/firebase.json
+# Firebase service account credentials
+credentials/firebase-service-account.json
+credentials/
 
 
 # Environment variables

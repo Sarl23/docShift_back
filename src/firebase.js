@@ -1,20 +1,24 @@
-require('dotenv').config();
-const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 const { initializeApp, cert } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
+
 let db;
+
 async function initializeFirebase() {
     try {
-        const serviceAccountUrl = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-        if (!serviceAccountUrl) {
+        const serviceAccountPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+        if (!serviceAccountPath) {
             throw new Error('The GOOGLE_APPLICATION_CREDENTIALS environment variable is not set');
         }
-        console.log('Downloading credentials');
-        const response = await axios.get(serviceAccountUrl);
-        const serviceAccount = response.data;
+
+        console.log('Reading credentials...');
+        const serviceAccount = JSON.parse(fs.readFileSync(path.resolve(serviceAccountPath), 'utf8'));
+
         initializeApp({
             credential: cert(serviceAccount)
         });
+
         db = getFirestore();
         console.log('Firebase initialized successfully...');
     } catch (error) {
@@ -30,6 +34,4 @@ async function getDb() {
     return db;
 }
 
-module.exports = {
-    getDb
-};
+module.exports = { getDb };
