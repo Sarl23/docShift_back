@@ -130,8 +130,29 @@ const getGlobalUserById = async (req, res) => {
         if (!doc.exists) {
             return res.status(404).json({ success: false, errorCode: 'GLOBAL_USER_NOT_FOUND' });
         }
+        
+        const userData = doc.data();
+        const linkedCompaniesPaths = userData.linkedCompanies || [];
 
-        return res.status(200).json({ success: true, data: { id: doc.id, ...doc.data() } });
+        const companyIds = linkedCompaniesPaths.map(path => {
+            const segments = path._path?.segments || [];
+            return segments[1];
+        });
+
+        const companiesData = await Promise.all(
+            companyIds.map(async (companyId) => {
+                try {
+                    const companyDoc = await db.collection('companies').doc(companyId).get();
+                    return companyDoc.exists
+                        ? { id: companyDoc.id, ...companyDoc.data() }
+                        : null;
+                } catch (err) {
+                    console.error('Error fetching company:', err);
+                    return null;
+                }
+            })
+        );
+        return res.status(200).json({ success: true, data: { id: doc.id, ...doc.data(), companiesData } });
     } catch (error) {
         console.error('Error al obtener usuario por ID:', error);
         return res.status(500).json({ success: false, errorCode: 'INTERNAL_SERVER_ERROR_GET_USER_BY_ID' });
