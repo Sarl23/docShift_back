@@ -28,7 +28,7 @@ const createGlobalUserWithValidation = async (req, res) => {
         }
 
         const companyDoc = companyQuery.docs[0];
-        const {address, city, companyCode, name} = companyDoc.data();
+        const { address, city, companyCode, name } = companyDoc.data();
         const companyId = companyDoc.id;
         const usersQuery = await db.collection('companies')
             .doc(companyId)
@@ -47,6 +47,17 @@ const createGlobalUserWithValidation = async (req, res) => {
         const userData = usersQuery.docs[0].data();
         const userRef = usersQuery.docs[0].ref;
 
+        const userGlobal = await db.collection('users')
+            .where('email', '==', email)
+            .limit(1)
+            .get();
+
+        if (userGlobal.exists) {
+            return res.status(400).json({
+                success: false,
+                errorCode: 'USER_ALREADY_EXISTS',
+            });
+        }
         await db.collection('users').doc(newUserId).set({
             ...userData,
             createdAt: new Date(),
@@ -57,15 +68,16 @@ const createGlobalUserWithValidation = async (req, res) => {
             ].filter(Boolean),
         });
 
+
         return res.status(201).json({
             success: true,
-            data: { 
-                user: {userId: newUserId, ...userData },
-                company :{  
-                    companyId: companyDoc.id, 
-                    address, 
-                    city, 
-                    companyCode, 
+            data: {
+                user: { userId: newUserId, ...userData },
+                company: {
+                    companyId: companyDoc.id,
+                    address,
+                    city,
+                    companyCode,
                     name,
                 }
             },
@@ -130,7 +142,7 @@ const getGlobalUserById = async (req, res) => {
         if (!doc.exists) {
             return res.status(404).json({ success: false, errorCode: 'GLOBAL_USER_NOT_FOUND' });
         }
-        
+
         const userData = doc.data();
         const linkedCompaniesPaths = userData.linkedCompanies || [];
 
