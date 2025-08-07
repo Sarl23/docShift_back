@@ -16,7 +16,7 @@ const getAllShiftType = async (req, res) =>{
                 ...shift
             }
         }));
-        res.json(shiftTypeData);
+        return res.status(200).json({ success: true, data: shiftTypeData });
     }catch(error){
         console.error('Error fetching shift type', error);
         res.status(500).send('Internal Server Error');
