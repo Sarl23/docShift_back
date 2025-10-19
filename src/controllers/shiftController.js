@@ -21,7 +21,7 @@ const getAllShift = async (req, res) => {
             "data":shiftData
         });
     } catch (error) {
-        console.error('Error getting shift', error);
+        console.error('Error getting shift', error); 
         return res.status(500).json({
             success: false,
             errorCode: 'INTERNAL_SERVER_ERROR_GETTING_SHIFT',
@@ -37,7 +37,7 @@ const postCreateShift = async (req, res) => {
             throw new error('FireStore has no been initialized initialized');
         }
         const { user_id, ...newShift } = req.body;
-        if (!user_id) {
+        if (!user_id) { 
             return res.status(404).send({
                 success: false,
                 errorCode: "INVALID_USER_ID",
@@ -105,7 +105,7 @@ const getShiftByUserId = async (req, res) => {
             throw new Error('FireStore has no been initialized');
         }
         const querySnapshot = await db.collection('companies').doc(companyId).collection('shift').get();
-        let arrayShiftDataByUser = []
+        const shift = []
         for (const doc of querySnapshot.docs) {
             const user_Id = doc.id?.split('_')[1];
             if (user_Id === userId) {
@@ -115,21 +115,19 @@ const getShiftByUserId = async (req, res) => {
                     const shiftTypeSnap = await db.collection('companies').doc(companyId).collection('shift_types').doc(shift_type_id).get();
                     shiftTypeDoc = shiftTypeSnap.exists ? shiftTypeSnap.data() : {};
                 }
-                arrayShiftDataByUser.push({
+                shift.push({
                     id: doc?.id,
-                    descriptionShift: shiftTypeDoc?.description ?? '',
-                    nameShift: shiftTypeDoc?.name ?? '',
-                    start_timeShift: shiftTypeDoc?.start_time ?? '',
-                    end_timeShift: shiftTypeDoc?.end_time ?? '',
+                    description: shiftTypeDoc?.description ?? '',
+                    name: shiftTypeDoc?.name ?? '',
+                    start_time: shiftTypeDoc?.start_time ?? '',
+                    end_time: shiftTypeDoc?.end_time ?? '',
                     ...shiftData
                 });
             }
         };
         return res.status(201).send({
             success: true,
-            data: {
-                shiftByUser: arrayShiftDataByUser
-            }
+            data: shift
         });
     } catch (error) {
         console.error('Error fetching shift by user id', error);
